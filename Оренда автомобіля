@@ -1,0 +1,104 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+class Car {
+public:
+    Car(const std::string& make, const std::string& model, int year, double pricePerDay)
+        : make(make), model(model), year(year), pricePerDay(pricePerDay), rented(false) {}
+
+    void rent() {
+        rented = true;
+    }
+
+    void returnCar() {
+        rented = false;
+    }
+
+    bool isRented() const {
+        return rented;
+    }
+
+    double getPricePerDay() const {
+        return pricePerDay;
+    }
+
+    std::string getInfo() const {
+        return make + " " + model + " (" + std::to_string(year) + ")";
+    }
+
+private:
+    std::string make;
+    std::string model;
+    int year;
+    double pricePerDay;
+    bool rented;
+};
+
+class CarRentalService {
+public:
+    void addCar(const Car& car) {
+        cars.push_back(car);
+    }
+
+    void rentCar(int carIndex) {
+        if (carIndex >= 0 && carIndex < cars.size()) {
+            Car& car = cars[carIndex];
+            if (!car.isRented()) {
+                car.rent();
+                std::cout << "Ви орендували наступний автомобіль: " << car.getInfo() << std::endl;
+            } else {
+                std::cout << "Цей автомобіль вже орендований." << std::endl;
+            }
+        } else {
+            std::cout << "Недійсний індекс автомобіля." << std::endl;
+        }
+    }
+
+    void returnCar(int carIndex) {
+        if (carIndex >= 0 && carIndex < cars.size()) {
+            Car& car = cars[carIndex];
+            if (car.isRented()) {
+                car.returnCar();
+                std::cout << "Ви повернули наступний автомобіль: " << car.getInfo() << std::endl;
+            } else {
+                std::cout << "Цей автомобіль зараз не орендований." << std::endl;
+            }
+        } else {
+            std::cout << "Недійсний індекс автомобіля." << std::endl;
+        }
+    }
+
+    double calculateRentalCost(int carIndex, int numDays) {
+        if (carIndex >= 0 && carIndex < cars.size()) {
+            const Car& car = cars[carIndex];
+            return car.getPricePerDay() * numDays;
+        } else {
+            std::cout << "Недійсний індекс автомобіля." << std::endl;
+            return 0.0;
+        }
+    }
+
+private:
+    std::vector<Car> cars;
+};
+
+int main() {
+    CarRentalService rentalService;
+
+    rentalService.addCar(Car("Toyota", "Camry", 2020, 50.0));
+    rentalService.addCar(Car("Honda", "Civic", 2022, 45.0));
+    rentalService.addCar(Car("Ford", "Focus", 2021, 55.0));
+
+    // Орендувати автомобіль
+    rentalService.rentCar(0);
+
+    // Повернути автомобіль
+    rentalService.returnCar(1);
+
+    // Обчислити вартість оренди
+    double rentalCost = rentalService.calculateRentalCost(2, 3);
+    std::cout << "Вартість оренди: $" << rentalCost << std::endl;
+
+    return 0;
+}
