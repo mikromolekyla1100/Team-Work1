@@ -1,0 +1,79 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+class Car {
+public:
+    // ... (та сама реалізація методів класу Car, як було показано раніше)
+
+    double getPrice() const {
+        return price;
+    }
+
+    // Додано метод для встановлення ціни продажу автомобіля
+    void setPrice(double newPrice) {
+        price = newPrice;
+    }
+};
+
+class SalesManager {
+public:
+    SalesManager() {}
+
+    // Метод для продажу автомобіля
+    void sellCar(int carIndex, double sellingPrice) {
+        if (carIndex >= 0 && carIndex < cars.size()) {
+            Car& car = cars[carIndex];
+            if (!car.isRented()) {
+                car.setPrice(sellingPrice);
+                soldCars.push_back(car);
+                cars.erase(cars.begin() + carIndex);
+                std::cout << "Car sold: " << car.getInfo() << " for $" << sellingPrice << std::endl;
+            } else {
+                std::cout << "Cannot sell the car. It is currently rented." << std::endl;
+            }
+        } else {
+            std::cout << "Invalid car index." << std::endl;
+        }
+    }
+
+    const std::vector<Car>& getCarsForSale() const {
+        return cars;
+    }
+
+    const std::vector<Car>& getSoldCars() const {
+        return soldCars;
+    }
+
+private:
+    std::vector<Car> cars;
+    std::vector<Car> soldCars;
+};
+
+int main() {
+    SalesManager salesManager;
+
+    // Додаємо автомобілі
+    salesManager.addCar(Car("Toyota", "Camry", 2020, 50000.0));
+    salesManager.addCar(Car("Honda", "Civic", 2022, 45000.0));
+    salesManager.addCar(Car("Ford", "Focus", 2021, 55000.0));
+
+    // Продаємо автомобіль
+    salesManager.sellCar(0, 45000.0);
+
+    // Виводимо список автомобілів для продажу та проданих автомобілів
+    const std::vector<Car>& carsForSale = salesManager.getCarsForSale();
+    const std::vector<Car>& soldCars = salesManager.getSoldCars();
+
+    std::cout << "Cars for sale:" << std::endl;
+    for (const Car& car : carsForSale) {
+        std::cout << car.getInfo() << " - Price: $" << car.getPrice() << std::endl;
+    }
+
+    std::cout << "\nSold cars:" << std::endl;
+    for (const Car& car : soldCars) {
+        std::cout << car.getInfo() << " - Sold for: $" << car.getPrice() << std::endl;
+    }
+
+    return 0;
+}
