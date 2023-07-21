@@ -1,0 +1,174 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+class Car {
+public:
+    Car(std::string make, std::string model, int year, double rentalPrice)
+        : make_(make), model_(model), year_(year), rentalPrice_(rentalPrice), isRented_(false), rentalDuration_(0), rating_(0) {}
+
+    void rentCar(int rentalDuration) {
+        if (isRented_) {
+            std::cout << "Автомобіль вже зданий в оренду." << std::endl;
+        } else {
+            isRented_ = true;
+            rentalDuration_ = rentalDuration;
+            std::cout << "Автомобіль успішно орендовано на " << rentalDuration_ << (rentalDuration > 1 ? " днів." : " день.") << std::endl;
+        }
+    }
+
+    void returnCar(int rating) {
+        if (isRented_) {
+            isRented_ = false;
+            rating_ = rating;
+            std::cout << "Автомобіль успішно повернуто." << std::endl;
+        } else {
+            std::cout << "Автомобіль вже не в оренді." << std::endl;
+        }
+    }
+
+    bool isRented() const {
+        return isRented_;
+    }
+
+    std::string getMake() const {
+        return make_;
+    }
+
+    std::string getModel() const {
+        return model_;
+    }
+
+    int getYear() const {
+        return year_;
+    }
+
+    double getRentalPrice() const {
+        return rentalPrice_;
+    }
+
+    int getRentalDuration() const {
+        return rentalDuration_;
+    }
+
+    int getRating() const {
+        return rating_;
+    }
+
+private:
+    std::string make_;
+    std::string model_;
+    int year_;
+    double rentalPrice_;
+    bool isRented_;
+    int rentalDuration_;
+    int rating_;
+};
+
+class CarRentalService {
+public:
+    void addCar(const Car& car) {
+        cars_.push_back(car);
+    }
+
+    void rentCar(int carIndex, int rentalDuration, std::string firstName, std::string lastName, int age) {
+        if (age < 18) {
+            std::cout << "Ви не можете орендувати автомобіль, оскільки вам менше 18 років." << std::endl;
+            return;
+        }
+
+        if (carIndex >= 0 && carIndex < cars_.size()) {
+            cars_[carIndex].rentCar(rentalDuration);
+            std::cout << "Ім'я: " << firstName << std::endl;
+            std::cout << "Прізвище: " << lastName << std::endl;
+            std::cout << "Вік: " << age << " років" << std::endl;
+        } else {
+            std::cout << "Некоректний індекс автомобіля." << std::endl;
+        }
+    }
+
+    void returnCar(int carIndex) {
+        if (carIndex >= 0 && carIndex < cars_.size()) {
+            int rating;
+            std::cout << "Поставте оцінку сервісу (від 1 до 10): ";
+            std::cin >> rating;
+
+            if (rating >= 1 && rating <= 10) {
+                cars_[carIndex].returnCar(rating);
+            } else {
+                std::cout << "Некоректна оцінка. Оцінка повинна бути від 1 до 10." << std::endl;
+            }
+        } else {
+            std::cout << "Некоректний індекс автомобіля." << std::endl;
+        }
+    }
+
+    void displayAvailableCars() const {
+        std::cout << "Доступні автомобілі:" << std::endl;
+        for (size_t i = 0; i < cars_.size(); ++i) {
+            if (!cars_[i].isRented()) {
+                std::cout << i << ". " << cars_[i].getMake() << " " << cars_[i].getModel()
+                          << " (" << cars_[i].getYear() << " року, Ціна оренди: " << cars_[i].getRentalPrice() << " грн/день)" << std::endl;
+            }
+        }
+    }
+
+    double calculateTotalPrice(int carIndex) {
+        if (carIndex >= 0 && carIndex < cars_.size()) {
+            const Car& car = cars_[carIndex];
+            double totalPrice = car.getRentalPrice() * car.getRentalDuration();
+            return totalPrice;
+        }
+        return 0.0;
+    }
+
+private:
+    std::vector<Car> cars_;
+};
+
+int main() {
+    CarRentalService rentalService;
+
+    // Додайте більше автомобілів
+    rentalService.addCar(Car("Toyota", "Camry", 2020, 500));
+    rentalService.addCar(Car("Honda", "Civic", 2019, 400));
+    rentalService.addCar(Car("Ford", "Focus", 2021, 450));
+    rentalService.addCar(Car("BMW", "X5", 2018, 800));
+    rentalService.addCar(Car("Mercedes", "E-Class", 2019, 700));
+    rentalService.addCar(Car("Audi", "A4", 2020, 600));
+    rentalService.addCar(Car("Volkswagen", "Golf", 2021, 400));
+    rentalService.addCar(Car("Hyundai", "Tucson", 2019, 550));
+
+    std::string firstName, lastName;
+    std::cout << "Введіть ваше ім'я: ";
+    std::cin >> firstName;
+    std::cout << "Введіть ваше прізвище: ";
+    std::cin >> lastName;
+
+    int age;
+    std::cout << "Введіть ваш вік: ";
+    std::cin >> age;
+
+    rentalService.displayAvailableCars();
+
+    int carIndex;
+    std::cout << "Введіть індекс автомобіля, який бажаєте орендувати: ";
+    std::cin >> carIndex;
+
+    int rentalDuration;
+    std::cout << "На скільки днів бажаєте орендувати автомобіль? ";
+    std::cin >> rentalDuration;
+
+    rentalService.rentCar(carIndex, rentalDuration, firstName, lastName, age);
+
+    double totalPrice = rentalService.calculateTotalPrice(carIndex);
+    if (totalPrice > 0) {
+        std::cout << "Остаточна ціна за оренду автомобіля: " << totalPrice << " грн." << std::endl;
+    }
+
+    rentalService.displayAvailableCars();
+
+    rentalService.returnCar(carIndex);
+
+    return 0;
+}
