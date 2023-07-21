@@ -1,0 +1,134 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+class Car {
+public:
+    Car(const std::string& make, const std::string& model, int year, double pricePerDay)
+        : make(make), model(model), year(year), pricePerDay(pricePerDay), rented(false) {}
+
+    void rent() {
+        rented = true;
+    }
+
+    void returnCar() {
+        rented = false;
+    }
+
+    bool isRented() const {
+        return rented;
+    }
+
+    double getPricePerDay() const {
+        return pricePerDay;
+    }
+
+    std::string getInfo() const {
+        return make + " " + model + " (" + std::to_string(year) + ")";
+    }
+
+private:
+    std::string make;
+    std::string model;
+    int year;
+    double pricePerDay;
+    bool rented;
+};
+
+class CarRentalService {
+public:
+    void addCar(const Car& car) {
+        cars.push_back(car);
+    }
+
+    void rentCar(int carIndex) {
+        if (carIndex >= 0 && carIndex < cars.size()) {
+            Car& car = cars[carIndex];
+            if (!car.isRented()) {
+                car.rent();
+                std::cout << "Ви орендували наступний автомобіль: " << car.getInfo() << std::endl;
+            } else {
+                std::cout << "Цей автомобіль вже орендований." << std::endl;
+            }
+        } else {
+            std::cout << "Недійсний індекс автомобіля." << std::endl;
+        }
+    }
+
+    double calculateRentalCost(int carIndex, int numDays) {
+        if (carIndex >= 0 && carIndex < cars.size()) {
+            const Car& car = cars[carIndex];
+            return car.getPricePerDay() * numDays;
+        } else {
+            std::cout << "Недійсний індекс автомобіля." << std::endl;
+            return 0.0;
+        }
+    }
+
+    void rateService(int rating) {
+        if (rating >= 1 && rating <= 5) {
+            ratings.push_back(rating);
+            std::cout << "Дякуємо за вашу оцінку послуг!" << std::endl;
+        } else {
+            std::cout << "Невірна оцінка. Будь ласка, введіть число від 1 до 5." << std::endl;
+        }
+    }
+
+    double getAverageRating() const {
+        if (ratings.empty()) {
+            return 0.0;
+        }
+
+        int sum = 0;
+        for (int rating : ratings) {
+            sum += rating;
+        }
+
+        return static_cast<double>(sum) / ratings.size();
+    }
+
+    void showAvailableCars() {
+        std::cout << "Доступні автомобілі для оренди: " << std::endl;
+        for (int i = 0; i < cars.size(); i++) {
+            const Car& car = cars[i];
+            if (!car.isRented()) {
+                std::cout << i << ". " << car.getInfo() << std::endl;
+            }
+        }
+        std::cout << std::endl;
+    }
+
+private:
+    std::vector<Car> cars;
+    std::vector<int> ratings;
+};
+
+int main() {
+    CarRentalService rentalService;
+
+    rentalService.addCar(Car("Toyota", "Camry", 2020, 50.0));
+    rentalService.addCar(Car("Honda", "Civic", 2022, 45.0));
+    rentalService.addCar(Car("Ford", "Focus", 2021, 55.0));
+
+    rentalService.showAvailableCars();
+
+    int carIndex;
+    std::cout << "Виберіть індекс автомобіля для оренди (0, 1 або 2): ";
+    std::cin >> carIndex;
+    rentalService.rentCar(carIndex);
+
+    int numDays;
+    std::cout << "Введіть кількість днів оренди: ";
+    std::cin >> numDays;
+    std::cout << "Вартість оренди: $" << rentalService.calculateRentalCost(carIndex, numDays) << std::endl;
+
+    int rating;
+    std::cout << "Введіть вашу оцінку послуг (від 1 до 5): ";
+    std::cin >> rating;
+    rentalService.rateService(rating);
+
+    double averageRating = rentalService.getAverageRating();
+    std::cout << "Середня оцінка послуг: " << averageRating << std::endl;
+
+    return 0;
+}
