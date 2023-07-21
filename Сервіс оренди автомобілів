@@ -1,0 +1,109 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+class Car {
+protected:
+    std::string make;     // Марка
+    std::string model;    // Модель
+    int year;             // Рік випуску
+    double dailyRate;     // Плата за добу
+
+public:
+    Car(std::string make, std::string model, int year, double dailyRate)
+        : make(make), model(model), year(year), dailyRate(dailyRate) {}
+
+    virtual ~Car() {}
+
+    double calculateRentalCost(int numberOfDays) const {
+        return dailyRate * numberOfDays;
+    }
+
+    virtual void displayInfo() const {
+        std::cout << "Марка: " << make << ", Модель: " << model << ", Рік: " << year << std::endl;
+    }
+
+    // Перевантаження оператора == для порівняння автомобілів за маркою, моделлю і роком випуску
+    bool operator==(const Car& other) const {
+        return (make == other.make) && (model == other.model) && (year == other.year);
+    }
+};
+
+class Customer {
+private:
+    std::string name;          // Ім'я
+    std::string drivingLicense; // Водійське посвідчення
+
+public:
+    Customer(std::string name, std::string drivingLicense)
+        : name(name), drivingLicense(drivingLicense) {}
+
+    std::string getName() const {
+        return name;
+    }
+
+    std::string getDrivingLicense() const {
+        return drivingLicense;
+    }
+
+    // Перевантаження оператора == для класу Customer
+    bool operator==(const Customer& other) const {
+        return name == other.name && drivingLicense == other.drivingLicense;
+    }
+};
+
+class CarRentalService {
+private:
+    std::vector<Car> availableCars; // Доступні автомобілі
+    std::vector<Customer> customers; // Клієнти
+
+public:
+    void addCar(const Car& car) {
+        availableCars.push_back(car);
+    }
+
+    void addCustomer(const Customer& customer) {
+        customers.push_back(customer);
+    }
+
+    void rentCar(const Customer& customer, const Car& car, int numberOfDays) {
+        auto carIter = std::find(availableCars.begin(), availableCars.end(), car);
+        auto customerIter = std::find(customers.begin(), customers.end(), customer);
+
+        if (carIter == availableCars.end() || customerIter == customers.end()) {
+            std::cout << "Помилка: Автомобіль або клієнт не знайдений." << std::endl;
+            return;
+        }
+
+        double rentalCost = car.calculateRentalCost(numberOfDays);
+        std::cout << "Оренда автомобіля на " << numberOfDays << " днів." << std::endl;
+        std::cout << "Клієнт: " << customer.getName() << std::endl;
+        car.displayInfo();
+        std::cout << "Загальна вартість: " << rentalCost << " USD" << std::endl;
+
+        availableCars.erase(carIter);
+
+        // Виводимо розділювальну полоску
+        std::cout << "----------------------------------------------------" << std::endl;
+    }
+};
+
+int main() {
+    Car car1("Toyota", "Camry", 2023, 50.0);
+    Car car2("Honda", "Civic", 2022, 45.0);
+
+    Customer customer1("John Smith", "DL123456789");
+    Customer customer2("Alice Johnson", "DL987654321");
+
+    CarRentalService rentalService;
+    rentalService.addCar(car1);
+    rentalService.addCar(car2);
+    rentalService.addCustomer(customer1);
+    rentalService.addCustomer(customer2);
+
+    rentalService.rentCar(customer1, car1, 3);
+    rentalService.rentCar(customer2, car2, 5);
+
+    return 0;
+}
