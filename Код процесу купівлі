@@ -1,0 +1,88 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+class Car {
+public:
+    // ... (та сама реалізація методів класу Car, як було показано раніше)
+
+    double getPricePerDay() const {
+        return pricePerDay;
+    }
+
+    // Додано метод для встановлення ціни за день
+    void setPricePerDay(double price) {
+        pricePerDay = price;
+    }
+};
+
+class Customer {
+public:
+    Customer(const std::string& name) : name(name), rentedCarIndex(-1) {}
+
+    void rentCar(int carIndex) {
+        rentedCarIndex = carIndex;
+        std::cout << name << " has rented the following car: " << cars[carIndex].getInfo() << std::endl;
+    }
+
+    void returnCar() {
+        if (rentedCarIndex != -1) {
+            cars[rentedCarIndex].returnCar();
+            std::cout << name << " has returned the following car: " << cars[rentedCarIndex].getInfo() << std::endl;
+            rentedCarIndex = -1;
+        } else {
+            std::cout << name << " has no car to return." << std::endl;
+        }
+    }
+
+    // Метод для купівлі автомобіля
+    void buyCar(int carIndex) {
+        if (carIndex >= 0 && carIndex < cars.size()) {
+            Car& car = cars[carIndex];
+            if (!car.isRented()) {
+                // Звільнимо попередній орендований автомобіль клієнта, якщо він мав такий
+                if (rentedCarIndex != -1) {
+                    cars[rentedCarIndex].returnCar();
+                }
+
+                car.rent();
+                rentedCarIndex = carIndex;
+                std::cout << name << " has bought the following car: " << car.getInfo() << std::endl;
+            } else {
+                std::cout << "This car is already rented." << std::endl;
+            }
+        } else {
+            std::cout << "Invalid car index." << std::endl;
+        }
+    }
+
+    double calculateTotalRentalCost(int numDays) {
+        if (rentedCarIndex != -1) {
+            return cars[rentedCarIndex].getPricePerDay() * numDays;
+        } else {
+            std::cout << name << " has no car rented." << std::endl;
+            return 0.0;
+        }
+    }
+
+private:
+    std::string name;
+    int rentedCarIndex;
+    std::vector<Car>& cars;
+};
+
+int main() {
+    std::vector<Car> cars;
+    cars.push_back(Car("Toyota", "Camry", 2020, 50.0));
+    cars.push_back(Car("Honda", "Civic", 2022, 45.0));
+    cars.push_back(Car("Ford", "Focus", 2021, 55.0));
+
+    Customer customer("John Doe");
+    customer.rentCar(0);
+    customer.buyCar(1);
+
+    double rentalCost = customer.calculateTotalRentalCost(3);
+    std::cout << "Total rental cost: $" << rentalCost << std::endl;
+
+    return 0;
+}
