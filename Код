@@ -1,0 +1,104 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+class Car {
+public:
+    Car(const std::string& make, const std::string& model, int year, double pricePerDay)
+        : make(make), model(model), year(year), pricePerDay(pricePerDay), rented(false) {}
+
+    void rent() {
+        rented = true;
+    }
+
+    void returnCar() {
+        rented = false;
+    }
+
+    bool isRented() const {
+        return rented;
+    }
+
+    double getPricePerDay() const {
+        return pricePerDay;
+    }
+
+    std::string getInfo() const {
+        return make + " " + model + " (" + std::to_string(year) + ")";
+    }
+
+private:
+    std::string make;
+    std::string model;
+    int year;
+    double pricePerDay;
+    bool rented;
+};
+
+class CarRentalService {
+public:
+    void addCar(const Car& car) {
+        cars.push_back(car);
+    }
+
+    void rentCar(int carIndex) {
+        if (carIndex >= 0 && carIndex < cars.size()) {
+            Car& car = cars[carIndex];
+            if (!car.isRented()) {
+                car.rent();
+                std::cout << "You have rented the following car: " << car.getInfo() << std::endl;
+            } else {
+                std::cout << "This car is already rented." << std::endl;
+            }
+        } else {
+            std::cout << "Invalid car index." << std::endl;
+        }
+    }
+
+    void returnCar(int carIndex) {
+        if (carIndex >= 0 && carIndex < cars.size()) {
+            Car& car = cars[carIndex];
+            if (car.isRented()) {
+                car.returnCar();
+                std::cout << "You have returned the following car: " << car.getInfo() << std::endl;
+            } else {
+                std::cout << "This car is not currently rented." << std::endl;
+            }
+        } else {
+            std::cout << "Invalid car index." << std::endl;
+        }
+    }
+
+    double calculateRentalCost(int carIndex, int numDays) {
+        if (carIndex >= 0 && carIndex < cars.size()) {
+            const Car& car = cars[carIndex];
+            return car.getPricePerDay() * numDays;
+        } else {
+            std::cout << "Invalid car index." << std::endl;
+            return 0.0;
+        }
+    }
+
+private:
+    std::vector<Car> cars;
+};
+
+int main() {
+    CarRentalService rentalService;
+
+    rentalService.addCar(Car("Toyota", "Camry", 2020, 50.0));
+    rentalService.addCar(Car("Honda", "Civic", 2022, 45.0));
+    rentalService.addCar(Car("Ford", "Focus", 2021, 55.0));
+
+    // Rent a car
+    rentalService.rentCar(0);
+
+    // Return a car
+    rentalService.returnCar(1);
+
+    // Calculate rental cost
+    double rentalCost = rentalService.calculateRentalCost(2, 3);
+    std::cout << "Rental cost: $" << rentalCost << std::endl;
+
+    return 0;
+}
